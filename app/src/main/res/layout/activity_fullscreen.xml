@@ -11,13 +11,26 @@
     <TextView
         android:id="@+id/text_sensor_data"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:gravity="center"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        android:gravity="top|center_horizontal"
         android:keepScreenOn="true"
         android:text="@string/dummy_content"
         android:textColor="#33b5e5"
         android:textSize="50sp"
-        android:textStyle="bold"/>
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/text_today_data"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:layout_margin="16dp"
+        android:gravity="bottom|center_horizontal"
+        android:keepScreenOn="true"
+        android:text="test"
+        android:textAppearance="@style/TextAppearance.AppCompat.Display1"
+        android:textColor="@android:color/background_light" />
 
     <!-- This FrameLayout insets its children based on system windows using
          android:fitsSystemWindows. -->

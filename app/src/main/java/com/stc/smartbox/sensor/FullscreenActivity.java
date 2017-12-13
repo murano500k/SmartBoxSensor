@@ -1,6 +1,7 @@
 package com.stc.smartbox.sensor;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.ActionBar;
@@ -10,11 +11,18 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.TextView;
 
+import com.stc.smartbox.sensor.data.Feed;
 import com.stc.smartbox.sensor.data.SensorData;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
 
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
 
+import static com.stc.smartbox.sensor.RetrofitHelper.FIELD_HUMIDITY;
+import static com.stc.smartbox.sensor.RetrofitHelper.FIELD_TEMP;
 import static com.stc.smartbox.sensor.RetrofitHelper.MY_CHANNEL;
 
 /**
@@ -93,7 +101,8 @@ public class FullscreenActivity extends AppCompatActivity {
         }
     };
     TextView textViewSensorData;
-    RetrofitHelper retrofitHelper;
+    DataManipulator dataManipulator;
+    TextView textViewTodayData;
 
 
     @Override
@@ -105,6 +114,7 @@ public class FullscreenActivity extends AppCompatActivity {
         mVisible = true;
         mControlsView = findViewById(R.id.fullscreen_content_controls);
         textViewSensorData=findViewById(R.id.text_sensor_data);
+        textViewTodayData=findViewById(R.id.text_today_data);
 
 
         // Set up the user interaction to manually show or hide the system UI.
@@ -122,9 +132,14 @@ public class FullscreenActivity extends AppCompatActivity {
         findViewById(R.id.dummy_button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                update();
+                showGraph();
             }
-        });        retrofitHelper =new RetrofitHelper();
+        });
+        dataManipulator=new DataManipulator();
+    }
+
+    private void showGraph() {
+        startActivity(new Intent(this,MainActivity.class));
     }
 
     @Override
@@ -135,13 +150,15 @@ public class FullscreenActivity extends AppCompatActivity {
 
     private void update() {
         textViewSensorData.setText("updating...");
-        retrofitHelper.getData(MY_CHANNEL)
+        dataManipulator.getRetrofit().getData(MY_CHANNEL, 10)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Action1<SensorData>() {
                     @Override
                     public void call(SensorData sensorData) {
+                        int results_size=sensorData.getFeeds().size();
+                        Log.d(TAG, "results_size: "+results_size);
                         String text = sensorData.getFeeds().get(0).getField1()+"°C ";
-                        text+="\n"+sensorData.getFeeds().get(0).getField2().trim()+"%";
+                        text+="\n"+sensorData.getFeeds().get(0).getField2()+"%";
                         Log.w(TAG, "call: " + text);
                         textViewSensorData.setText(text);
                     }
@@ -153,6 +170,57 @@ public class FullscreenActivity extends AppCompatActivity {
                         textViewSensorData.setText("ERROR \n no DATA");
                     }
                 });
+        updateValuesFor1Day();
+    }
+
+    private void updateValuesFor1Day() {
+        final Date today=new Date();
+        long dayMillis=60*60*24*1000;
+        Date yesterday = new Date(today.getTime()-dayMillis);
+
+        textViewTodayData.setText("loading...");
+        dataManipulator.getDataForPeriod(yesterday,today)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Action1<List<Feed>>() {
+                               @Override
+                               public void call(List<Feed> feeds) {
+                                   String minTemp, maxTemp;
+                                   String minHumidity, maxHumidity;
+                                   String avgTemp, avgHumidity;
+
+                                   SimpleDateFormat format=new SimpleDateFormat("HH:mm");
+
+                                   Feed feed =dataManipulator.getValueForPeriod(feeds, DataManipulator.VALUE_TYPE.MIN, FIELD_TEMP);
+                                   minTemp = feed.getField1()+" ("+format.format(feed.getCreatedAt())+")";
+
+                                   feed =dataManipulator.getValueForPeriod(feeds, DataManipulator.VALUE_TYPE.MAX, FIELD_TEMP);
+                                   maxTemp = feed.getField1()+" ("+format.format(feed.getCreatedAt())+")";
+
+                                   avgTemp = dataManipulator.getAvg(feeds, FIELD_TEMP).toString();
+
+                                   feed =dataManipulator.getValueForPeriod(feeds, DataManipulator.VALUE_TYPE.MIN, FIELD_HUMIDITY);
+
+                                   minHumidity = feed.getField2()+" ("+format.format(feed.getCreatedAt())+")";
+
+                                   feed =dataManipulator.getValueForPeriod(feeds, DataManipulator.VALUE_TYPE.MAX, FIELD_HUMIDITY);
+                                   maxHumidity = feed.getField2()+" ("+format.format(feed.getCreatedAt())+")";
+
+                                   avgHumidity = dataManipulator.getAvg(feeds, FIELD_HUMIDITY).toString();
+
+                                   String todayString="";
+                                    todayString+="Temp:\nmin("+minTemp+")\nmax("+maxTemp+")\navg("+avgTemp+")\n\n";
+                                    todayString+="Humidity:\nmin("+minHumidity+")\nmax("+maxHumidity+")\navg("+avgHumidity+")";
+                                   textViewTodayData.setText(todayString);
+                               }
+                           }, new Action1<Throwable>() {
+                               @Override
+                               public void call(Throwable throwable) {
+                                   Log.e(TAG, "call: ", throwable);
+                               }
+                           });
+
+
+
     }
 
 
