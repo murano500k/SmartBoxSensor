@@ -29,7 +29,7 @@ public class DataManipulator {
         MIN,
         MAX,
     }
-    private final RetrofitHelper retrofitHelper;
+    private static RetrofitHelper retrofitHelper;
     public List<Feed> feeds;
     public DataManipulator(){
         retrofitHelper =new RetrofitHelper();

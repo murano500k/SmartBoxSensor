@@ -18,14 +18,23 @@ import rx.schedulers.Schedulers;
  */
 
 public class RetrofitHelper {
+    public static RetrofitHelper instance;
     public static final String BASE_URL = "https://api.thingspeak.com/";
-    Retrofit retrofit;
-    ThingspeakEndpointInterface thingspeakEndpointInterface;
+    private  static Retrofit retrofit;
+    static ThingspeakEndpointInterface thingspeakEndpointInterface;
     public static final int MY_CHANNEL = 330894;
     public static final int FIELD_TEMP = 1;
     public static final int FIELD_HUMIDITY = 2;
 //https://api.thingspeak.com/channels/330894/fields/1.json?results=1
-    public void init(){
+
+    public static RetrofitHelper getInstance(){
+        if(instance==null){
+            instance=new RetrofitHelper();
+            init();
+        }
+        return instance;
+    }
+    public static void init(){
         RxJavaCallAdapterFactory rxAdapter = RxJavaCallAdapterFactory.createWithScheduler(Schedulers.io());
 
         Gson gson = new GsonBuilder()
