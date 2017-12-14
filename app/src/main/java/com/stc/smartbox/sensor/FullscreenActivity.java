@@ -139,7 +139,7 @@ public class FullscreenActivity extends AppCompatActivity {
     }
 
     private void showGraph() {
-        startActivity(new Intent(this,MainActivity.class));
+        startActivity(new Intent(this,ChartActivity.class));
     }
 
     @Override
@@ -182,42 +182,42 @@ public class FullscreenActivity extends AppCompatActivity {
         dataManipulator.getDataForPeriod(yesterday,today)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Action1<List<Feed>>() {
-                               @Override
-                               public void call(List<Feed> feeds) {
-                                   String minTemp, maxTemp;
-                                   String minHumidity, maxHumidity;
-                                   String avgTemp, avgHumidity;
+                    @Override
+                    public void call(List<Feed> feeds) {
+                        String minTemp, maxTemp;
+                        String minHumidity, maxHumidity;
+                        String avgTemp, avgHumidity;
 
-                                   SimpleDateFormat format=new SimpleDateFormat("HH:mm");
+                        SimpleDateFormat format=new SimpleDateFormat("HH:mm");
 
-                                   Feed feed =dataManipulator.getValueForPeriod(feeds, DataManipulator.VALUE_TYPE.MIN, FIELD_TEMP);
-                                   minTemp = feed.getField1()+" ("+format.format(feed.getCreatedAt())+")";
+                        Feed feed =dataManipulator.getValueForPeriod(feeds, DataManipulator.VALUE_TYPE.MIN, FIELD_TEMP);
+                        minTemp = feed.getField1()+" ("+format.format(feed.getCreatedAt())+")";
 
-                                   feed =dataManipulator.getValueForPeriod(feeds, DataManipulator.VALUE_TYPE.MAX, FIELD_TEMP);
-                                   maxTemp = feed.getField1()+" ("+format.format(feed.getCreatedAt())+")";
+                        feed =dataManipulator.getValueForPeriod(feeds, DataManipulator.VALUE_TYPE.MAX, FIELD_TEMP);
+                        maxTemp = feed.getField1()+" ("+format.format(feed.getCreatedAt())+")";
 
-                                   avgTemp = dataManipulator.getAvg(feeds, FIELD_TEMP).toString();
+                        avgTemp = dataManipulator.getAvg(feeds, FIELD_TEMP).toString();
 
-                                   feed =dataManipulator.getValueForPeriod(feeds, DataManipulator.VALUE_TYPE.MIN, FIELD_HUMIDITY);
+                        feed =dataManipulator.getValueForPeriod(feeds, DataManipulator.VALUE_TYPE.MIN, FIELD_HUMIDITY);
 
-                                   minHumidity = feed.getField2()+" ("+format.format(feed.getCreatedAt())+")";
+                        minHumidity = feed.getField2()+" ("+format.format(feed.getCreatedAt())+")";
 
-                                   feed =dataManipulator.getValueForPeriod(feeds, DataManipulator.VALUE_TYPE.MAX, FIELD_HUMIDITY);
-                                   maxHumidity = feed.getField2()+" ("+format.format(feed.getCreatedAt())+")";
+                        feed =dataManipulator.getValueForPeriod(feeds, DataManipulator.VALUE_TYPE.MAX, FIELD_HUMIDITY);
+                        maxHumidity = feed.getField2()+" ("+format.format(feed.getCreatedAt())+")";
 
-                                   avgHumidity = dataManipulator.getAvg(feeds, FIELD_HUMIDITY).toString();
+                        avgHumidity = dataManipulator.getAvg(feeds, FIELD_HUMIDITY).toString();
 
-                                   String todayString="";
-                                    todayString+="Temp:\nmin("+minTemp+")\nmax("+maxTemp+")\navg("+avgTemp+")\n\n";
-                                    todayString+="Humidity:\nmin("+minHumidity+")\nmax("+maxHumidity+")\navg("+avgHumidity+")";
-                                   textViewTodayData.setText(todayString);
-                               }
-                           }, new Action1<Throwable>() {
-                               @Override
-                               public void call(Throwable throwable) {
-                                   Log.e(TAG, "call: ", throwable);
-                               }
-                           });
+                        String todayString="";
+                        todayString+="Temp:\nmin("+minTemp+")\nmax("+maxTemp+")\navg("+avgTemp+")\n\n";
+                        todayString+="Humidity:\nmin("+minHumidity+")\nmax("+maxHumidity+")\navg("+avgHumidity+")";
+                        textViewTodayData.setText(todayString);
+                    }
+                }, new Action1<Throwable>() {
+                    @Override
+                    public void call(Throwable throwable) {
+                        Log.e(TAG, "call: ", throwable);
+                    }
+                });
 
 
 

@@ -42,7 +42,8 @@ public class DataManipulator {
 
     public Observable<List<Feed>> getDataForPeriod(final Date from, final Date to){
         if(feeds==null) {
-            return retrofitHelper.getData(RetrofitHelper.MY_CHANNEL, 2000)
+            return retrofitHelper.getData(RetrofitHelper.MY_CHANNEL, 500
+            )
                     .flatMap(new Func1<SensorData, Observable<List<Feed>>>() {
 
 
@@ -118,7 +119,7 @@ public class DataManipulator {
                 List<Entry> entries = new ArrayList<>();
                 for (Feed f :
                         feeds) {
-                    if(f.getEntryId()%5!=0)continue;
+                    if(f.getEntryId()%10!=0)continue;
                     float val = -1;
                     if (field == FIELD_TEMP) val = f.getField1();
                     if (field == FIELD_HUMIDITY) val = f.getField2();
